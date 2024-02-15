@@ -19,12 +19,6 @@ try:
         directory_basename               = data['directory_basename']
         file_browse_path                 = data['file_browse_path']
         file_basename                    = data['file_basename']
-        cloud_storage_client_identifier  = data['cloud_storage_client_identifier']
-        cloud_storage_client_token       = data['cloud_storage_client_token']
-        cloud_storage_client_bucket_name = data['cloud_storage_client_bucket_name']
-        cloud_storage_client_path_start  = data['cloud_storage_client_path_start']
-        cloud_storage_endpoint           = data['cloud_storage_endpoint']
-        cloud_storage_region             = data['cloud_storage_region']
 except:
     print("Error reading ./config.json")
     exit()
