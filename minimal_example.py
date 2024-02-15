@@ -17,6 +17,7 @@ try:
         uk_dp_id                         = data['uk_dp_id']
         group_id                         = data['group_id']
         directory_basename               = data['directory_basename']
+        directory_file_basename          = data['directory_file_basename']
         file_browse_path                 = data['file_browse_path']
         file_basename                    = data['file_basename']
 except:
@@ -79,14 +80,15 @@ else:
     browse_dp_info = browse_dp_response.json()
     print("\nBrowse DP info:\n", browse_dp_info)
 
-###########################################################
-#                 3. Case of a directory                  #
-#                                                         #
-# a. Register the directory                               #
-# b. Move the directory to an other DataProvider          #
-# c. Download the file content via download               #
-#                                                         #
-###########################################################
+##################################################################
+#                     3. Case of a directory                     #
+#                                                                #
+# a. Register the directory                                      #
+# b. Move the directory to an other DataProvider                 #
+# c. Download the directory content via download                 #
+# d. Download a specific file content via userfiles/{id}/content #
+#                                                                #
+##################################################################
 
 print ("\n\n=== Work on Directory ===")
 
@@ -172,6 +174,41 @@ else:
     file_name = directory_basename + '.tar.gz'
     open(file_name, 'wb').write(download_userfiles_response.content)
     print('File download successful. Under:', file_name)
+
+##############################
+# d. Download a file         #
+# via userfiles/{id}/content #
+##############################
+
+print ("\n\n=== DL a file via userfiles/{id}/content ===")
+
+if register_directory_info != None:
+    directory_info = register_directory_info['newly_registered_userfiles'][0]
+    directory_id   = str(directory_info['id'])
+    full_path_to_file = directory_basename + '/' + directory_file_basename
+
+    file_content_data = {
+        'arguments': [full_path_to_file],
+        'content_loader': "collection_file",
+        'id': directory_id
+    }
+
+    file_content_response = requests.get(
+        url  = '/'.join([base_url, 'userfiles', directory_id, 'content']),
+        headers         = api_headers,
+        params          = token_params,
+        allow_redirects = True,
+        data            = json.dumps(file_content_data),
+    )
+
+    if file_content_response.status_code != requests.codes.ok:
+        failed_file_content_info = file_content_response.json()
+        print('File content retrieval failed.')
+        print(failed_file_content_info)
+    else:
+        print('File content retrieval successful.')
+        open(directory_file_basename, 'wb').write(file_content_response.content)
+
 
 ###########################################################
 #                4. Case of a file                        #
