@@ -82,6 +82,7 @@ print("=== Create a UserkeyFlatDirSshDataProvider ===")
 
 ssh_dp_info = {
     'data_provider': {
+        'type': 'UserkeyFlatDirSshDataProvider',
         'name': uk_dp_name,
         'remote_host': uk_dp_remote_host,
         'remote_user': uk_dp_remote_user,
