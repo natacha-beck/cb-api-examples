@@ -25,6 +25,14 @@ try:
         uk_dp_remote_user                = data['uk_dp_remote_user']
         uk_dp_remote_dir                 = data['uk_dp_remote_dir']
         uk_dp_group_id                   = data['uk_dp_group_id']
+        cloud_storage_client_identifier  = data['cloud_storage_client_identifier']
+        cloud_storage_client_token       = data['cloud_storage_client_token']
+        cloud_storage_client_bucket_name = data['cloud_storage_client_bucket_name']
+        cloud_storage_client_path_start  = data['cloud_storage_client_path_start']
+        cloud_storage_endpoint           = data['cloud_storage_endpoint']
+        cloud_storage_region             = data['cloud_storage_region']
+        s3_name                          = data['s3_name']
+
 except:
     print("Error reading ./config.json")
     exit()
@@ -78,7 +86,7 @@ ssh_dp_info = {
         'remote_host': uk_dp_remote_host,
         'remote_user': uk_dp_remote_user,
         'remote_dir': uk_dp_remote_dir,
-        'group_id': uk_dp_group_id,
+        'cloud_storage_client_token': "remote_storage_client_token"
     }
 }
 
@@ -116,3 +124,91 @@ if check_ssh_dp_response.status_code != requests.codes.ok:
     print('DP check failed.')
 else:
     print('DP check successful.')
+
+######################################
+# 4. Get DP info                     #
+######################################
+
+print("=== Get DP info ===")
+
+get_ssh_dp_response = requests.get(
+    url  = '/'.join([base_url, 'data_providers', str(create_ssh_dp_info['id'])]),
+    headers = api_headers,
+    params  = token_params,
+)
+
+if get_ssh_dp_response.status_code != requests.codes.ok:
+    print('DP get failed.')
+else:
+    print('DP get successful.')
+    print(get_ssh_dp_response.json())
+
+#########################################
+# 5. Create a S3MultiLevelDataProvider #
+########################################
+
+print ("=== Create a S3MultiLevelDataProvider ===")
+
+s3_dp_info = {
+    'data_provider': {
+        'type': "S3MultiLevelDataProvider",
+        'name': s3_name,
+        'cloud_storage_client_identifier': cloud_storage_client_identifier,
+        'cloud_storage_client_token': cloud_storage_client_token,
+        'cloud_storage_client_bucket_name': cloud_storage_client_bucket_name,
+        'cloud_storage_client_path_start': cloud_storage_client_path_start,
+        'cloud_storage_endpoint': cloud_storage_endpoint,
+        'cloud_storage_region': cloud_storage_region
+    }
+}
+
+create_s3multi_dp_response = requests.post(
+    url  = '/'.join([base_url, 'data_providers', 'create_personal']),
+    headers = api_headers,
+    params  = token_params,
+    data    = json.dumps(s3_dp_info),
+)
+
+if create_s3multi_dp_response.status_code != requests.codes.ok:
+    print('DP creation failed.')
+    failed_s3multi_dp_info = create_s3multi_dp_response.json()
+    print(failed_s3multi_dp_info)
+else:
+    print('DP creation successful.')
+    create_s3multi_dp_info = create_s3multi_dp_response.json()
+    print(create_s3multi_dp_info)
+
+######################################
+# 6. Check_personal to put it online #
+######################################
+
+print("=== Check_personal to put it online ===")
+
+check_s3multi_dp_response = requests.post(
+    url  = '/'.join([base_url, 'data_providers', str(create_s3multi_dp_info['id']), 'check_personal']),
+    headers = api_headers,
+    params  = token_params,
+)
+
+if check_s3multi_dp_response.status_code != requests.codes.ok:
+    print('DP check failed.')
+else:
+    print('DP check successful.')
+
+######################################
+# 7. Get DP info                     #
+######################################
+
+print("=== Get DP info ===")
+
+get_s3multi_dp_response = requests.get(
+    url  = '/'.join([base_url, 'data_providers', str(create_s3multi_dp_info['id'])]),
+    headers = api_headers,
+    params  = token_params,
+)
+
+if get_s3multi_dp_response.status_code != requests.codes.ok:
+    print('DP get failed.')
+else:
+    print('DP get successful.')
+    print(get_s3multi_dp_response.json())
