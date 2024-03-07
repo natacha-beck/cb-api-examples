@@ -65,12 +65,11 @@ print ("\n\n=== File copy via Bourreau ===\n")
 
 file_copy_data = {
     "userfile_ids": file_copy_ids,
-    "bourreau_id": file_copy_bourreau_id,
     "dataprovider_id": file_copy_dp_id,
 }
 
 file_copy_response = requests.post(
-    url = '/'.join([base_url, 'bourreaux', 'file_copy']),
+    url = '/'.join([base_url, 'bourreaux', file_copy_bourreau_id, 'file_copy']),
     headers = api_headers,
     params = token_params,
     data = json.dumps(file_copy_data)
